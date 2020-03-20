@@ -43,7 +43,7 @@ $ export VERSION="v1.0.0
 Next, navigate to the top-level directory of the module source code, and run `pacmod` like this:
 
 ```console
-$ pacmod pack $VERSION .
+$ pacmod pack github.com/my/module $VERSION .
 ```
 
 Once this command is done, you'll notice three new files in the same same directory you ran the command from:

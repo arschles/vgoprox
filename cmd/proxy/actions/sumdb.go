@@ -9,7 +9,7 @@ import (
 	"github.com/gomods/athens/pkg/paths"
 )
 
-func sumdbPoxy(url *url.URL, nosumPatterns []string) http.Handler {
+func sumdbProxy(url *url.URL, nosumPatterns []string) http.Handler {
 	rp := httputil.NewSingleHostReverseProxy(url)
 	rp.Director = func(req *http.Request) {
 		req.Host = url.Host

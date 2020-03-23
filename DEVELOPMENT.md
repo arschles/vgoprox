@@ -239,3 +239,57 @@ In our CI/CD pass, we use golint, so feel free to install and run it locally bef
 ```
 go get golang.org/x/lint/golint
 ```
+
+# For People Doing a Release
+
+This section is written primarily for maintainers, so we don't forget how to initiate and complete a release. If you're not a maintainer and you're curious how we release new versions of Athens, read on!
+
+Take a look at our [releases page](https://github.com/gomods/athens/releases). This is how we release official new builds of Athens. Almost all of the release process is automatic.
+
+## Code freeze
+
+The first step to a release is a code freeze. This is 1-2 weeks (depending on the features and bugfixes we intend to release) during which we don't merge anything but critical bugfixes to the `master` branch. The code in `master` is essentially a release candidate (we don't cut a new branch for RC's at the moment) to test.
+
+## Release branch
+
+Right before we un-freeze the `master` branch, we will cut a new branch called `release-v0.x.y`. Make sure the branch name starts with `release-v`, followed by the [semver](https://semver.org) release number.
+
+>You need to have permissions to create a new branch in origin, whether through the GitHub site or running `push origin release-v0.x.x`
+
+### Note about the release number
+
+We follow the [semver](https://semver.org) convention for our release numbers. At the moment, we're not at `v1`, so release versions are `v0.x.y`. `x` is the `MINOR` number, and `y` is the `PATCH` number. You'll need to decide which one to update.
+
+If there are significant new features in this release, choose to update the minor version. Otherwise, choose to update the patch version. Reminder: semver convention looks like this: `v0.MINOR.PATCH`.
+
+## Creating the new release in GitHub
+
+Go to the [create new release page](https://github.com/gomods/athens/releases/new) and draft a new release. See below for what data to put into the fields you see:
+
+- **Tag version** - This should be the same `v0.x.y` number you put into the release branch. Again, make sure this tag starts with `v`
+- **Release Title** - Make sure the title is prefixed by the release number including the `v`. If you want to write something creative in the rest of the title, go for it!
+- **Describe this release** - Make sure to write what features this release includes, and any notable bugfixes. Also, thank all the folks who contributed to the release. You can find that information in a link that looks like this: `https://github.com/gomods/athens/compare/master...v0.7.2`. Substitute the `v0.7.2` from the most recent release before the one you are creating
+
+When you're done, press the "Publish Release" button. After you do, our [Drone](https://cloud.drone.io) job will do almost everything.
+
+Make sure the Drone job finished, and check in Docker Hub to make sure the new release showed up in the [tags](https://hub.docker.com/r/gomods/athens/tags) section.
+
+## Finishing up
+
+The Drone job will do everything except:
+
+- Tweet out about the new release
+- Update the helm chart
+
+If you are a core maintainer and don't have access to the `@gomods` account, ask one of the maintainers to give you access. [Here](https://twitter.com/gomodsio/status/1240016379962691585) is an example showing the general format of these tweets. Obviously you should use your creativity here though!
+
+Finally, you'll need to create two identical PRs to update the Helm chart. Create one to merge into the `master` branch, and another to merge into the `release-v0.x.y` branch you created.
+
+You'll need to update two files:
+
+- [charts/athens-proxy/values.yaml](https://github.com/gomods/athens/blob/master/charts/athens-proxy/values.yaml) - update the `image.tag` field to the latest version number you created, including the `v`. This field should be near the top of the file
+- [charts/athens-proxy/Chart.yaml](https://github.com/gomods/athens/blob/master/charts/athens-proxy/Chart.yaml) - update the `version` field and the `appVersion` field
+  - Increment the patch number in the `version` field
+  - Change the `appVersion` field to the tag name of the GitHub version you created, including the `v`
+
+[Here](https://github.com/gomods/athens/pull/1574) is an example of how to do this.

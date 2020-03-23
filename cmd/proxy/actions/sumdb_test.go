@@ -20,7 +20,7 @@ func TestSumdbProxy(t *testing.T) {
 		panic(err)
 	}
 	pathPrefix := "/sumdb/" + surl.Host
-	h := sumdbPoxy(surl, nil)
+	h := sumdbProxy(surl, nil)
 	h = http.StripPrefix(pathPrefix, h)
 
 	targetURL := "/sumdb/" + surl.Host + "/latest"

@@ -27,6 +27,8 @@ The Athens proxy supports many storage types:
       - [Configuration:](#configuration-7)
 - [Azure Blob Storage](#azure-blob-storage)
       - [Configuration:](#configuration-8)
+- [External Storage](#external-storage)
+      - [Configuration:](#configuration-9)
 
 All of them can be configured using `config.toml` file. You need to set a valid driver in `StorageType` value or you can set it in environment variable `ATHENS_STORAGE_TYPE` on your server.
 Also for most of the drivers you need to provide additional configuration data which will be described below.
@@ -335,6 +337,44 @@ It assumes that you already have the following:
             # Name of container in the blob storage
             # Env override: ATHENS_AZURE_CONTAINER_NAME
             ContainerName = "MY_AZURE_BLOB_CONTAINER_NAME"
+
+## External Storage
+
+External storage lets Athens connect to your own implementation of a storage backend. 
+All you have to do is implement the (storage.Backend)[https://github.com/gomods/athens/blob/master/pkg/storage/backend.go#L4] interface and run it behind an http server. 
+
+Once you implement the backend server, you must then configure Athens to use that storage backend as such:
+
+##### Configuration:
+    # Env override: ATHENS_STORAGE_TYPE
+    StorageType = "external"
+
+    [Storage]
+        [Storage.External]
+            # Env override: ATHENS_EXTERNAL_STORAGE_URL
+            URL = "http://localhost:9090"
+
+Athens provides a convenience wrapper that lets you implement a storage backend with ease. See the following example: 
+
+
+```golang
+package main
+
+import (
+    "github.com/gomods/athens/pkg/storage"
+    "github.com/gomods/athens/pkg/storage/external"
+)
+
+// TODO: implement storage.Backend
+type myCustomStorage struct {
+    storage.Backend
+}
+
+func main() {
+    handler := external.NewServer(&myCustomStorage{})
+    http.ListenAndServe(":9090", handler)
+}
+```
 
 ## Running multiple Athens pointed at the same storage
 

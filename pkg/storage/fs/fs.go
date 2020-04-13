@@ -2,6 +2,7 @@ package fs
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/gomods/athens/pkg/errors"
@@ -36,4 +37,11 @@ func NewStorage(rootDir string, filesystem afero.Fs) (storage.Backend, error) {
 		return nil, errors.E(op, fmt.Errorf("root directory `%s` does not exist", rootDir))
 	}
 	return &storageImpl{rootDir: rootDir, filesystem: filesystem}, nil
+}
+
+func (s *storageImpl) Clear() error {
+	if err := s.filesystem.RemoveAll(s.rootDir); err != nil {
+		return err
+	}
+	return s.filesystem.Mkdir(s.rootDir, os.ModeDir|os.ModePerm)
 }

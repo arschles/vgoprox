@@ -9,6 +9,7 @@ import (
 	"github.com/gomods/athens/pkg/errors"
 	"github.com/gomods/athens/pkg/storage"
 	"github.com/gomods/athens/pkg/storage/azureblob"
+	"github.com/gomods/athens/pkg/storage/external"
 	"github.com/gomods/athens/pkg/storage/fs"
 	"github.com/gomods/athens/pkg/storage/gcp"
 	"github.com/gomods/athens/pkg/storage/mem"
@@ -60,6 +61,12 @@ func GetStorage(storageType string, storageConfig *config.StorageConfig, timeout
 			return nil, errors.E(op, "Invalid AzureBlob Storage Configuration")
 		}
 		return azureblob.New(storageConfig.AzureBlob, timeout)
+	case "external":
+		if storageConfig.External == nil {
+			return nil, errors.E(op, "Invalid External Storage Configuration")
+		}
+		// TODO(marwan-at-work): add client tracing
+		return external.NewClient(storageConfig.External.URL, nil), nil
 	default:
 		return nil, fmt.Errorf("storage type %s is unknown", storageType)
 	}

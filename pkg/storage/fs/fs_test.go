@@ -1,7 +1,6 @@
 package fs
 
 import (
-	"os"
 	"testing"
 
 	"github.com/gomods/athens/pkg/storage/compliance"
@@ -12,27 +11,20 @@ import (
 func TestBackend(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	b := getStorage(t, fs)
-	compliance.RunTests(t, b, b.clear)
+	compliance.RunTests(t, b, b.Clear)
 	fs.RemoveAll(b.rootDir)
 }
 
 func BenchmarkBackend(b *testing.B) {
 	fs := afero.NewOsFs()
 	backend := getStorage(b, fs)
-	compliance.RunBenchmarks(b, backend, backend.clear)
+	compliance.RunBenchmarks(b, backend, backend.Clear)
 	fs.RemoveAll(backend.rootDir)
 }
 
 func BenchmarkMemory(b *testing.B) {
 	backend := getStorage(b, afero.NewMemMapFs())
-	compliance.RunBenchmarks(b, backend, backend.clear)
-}
-
-func (s *storageImpl) clear() error {
-	if err := s.filesystem.RemoveAll(s.rootDir); err != nil {
-		return err
-	}
-	return s.filesystem.Mkdir(s.rootDir, os.ModeDir|os.ModePerm)
+	compliance.RunBenchmarks(b, backend, backend.Clear)
 }
 
 func getStorage(tb testing.TB, fs afero.Fs) *storageImpl {

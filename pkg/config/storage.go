@@ -8,4 +8,5 @@ type StorageConfig struct {
 	Mongo     *MongoConfig
 	S3        *S3Config
 	AzureBlob *AzureBlobConfig
+	External  *External
 }

@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   registry: docker.io
   repository: gomods/athens
-  tag: v0.8.0
+  tag: v0.8.1
 
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -16,6 +16,10 @@ livenessProbe:
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 1
+
+## Server Deployment Strategy type
+# strategy:
+#   type: Recreate
 
 service:
   ## Additional annotations to apply to the service
@@ -46,6 +50,7 @@ storage:
     storageRoot: "/var/lib/athens"
     persistence:
       ## Note if you use disk.persistence.enabled, replicaCount should be set to 1 unless your access mode is ReadWriteMany
+      ## and strategy type must be Recreate
       enabled: false
       accessMode: ReadWriteOnce
       size: 4Gi

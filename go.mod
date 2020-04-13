@@ -1,6 +1,6 @@
 module github.com/gomods/athens
 
-go 1.12
+go 1.14
 
 require (
 	cloud.google.com/go/bigquery v1.4.0 // indirect

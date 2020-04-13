@@ -113,7 +113,7 @@ RobotsFile = "robots.txt"
 Timeout = 300
 
 # StorageType sets the type of storage backend the proxy will use.
-# Possible values are memory, disk, mongo, gcp, minio, s3, azureblob
+# Possible values are memory, disk, mongo, gcp, minio, s3, azureblob, external
 # Defaults to memory
 # Env override: ATHENS_STORAGE_TYPE
 StorageType = "memory"
@@ -467,3 +467,11 @@ SingleFlightType = "memory"
         # Name of container in the blob storage
         # Env override: ATHENS_AZURE_CONTAINER_NAME
         ContainerName = "MY_AZURE_BLOB_CONTAINER_NAME"
+
+   [Storage.External]
+        # URL is the external storage URL that Athens 
+        # will use to interact with the backend storage layer.
+        # See https://docs.gomods.io/configuration/storage for implementation 
+        # details.
+        # Env override: ATHENS_EXTERNAL_STORAGE_URL
+        URL = ""

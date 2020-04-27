@@ -72,13 +72,11 @@ func NewServer(strg storage.Backend) http.Handler {
 	r.HandleFunc("/{module:.+}/@v/{version}.save", func(w http.ResponseWriter, r *http.Request) {
 		params, err := paths.GetAllParams(r)
 		if err != nil {
-			fmt.Println("REALLY?", err)
 			http.Error(w, err.Error(), 400)
 			return
 		}
 		err = r.ParseMultipartForm(zip.MaxZipFile + zip.MaxGoMod)
 		if err != nil {
-			fmt.Printf("parse: %v\n", err)
 			http.Error(w, err.Error(), 400)
 			return
 		}

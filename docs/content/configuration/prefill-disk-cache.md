@@ -23,7 +23,7 @@ The `source.zip` file has a specific directory structure and the `$VERSION.info`
 To install the `pacmod` tool, run `go get` like this:
 
 ```console
-$ go get github.com/plexsystems/pacmod
+$ go get github.com/plexsystems/pacmod@v0.4.0
 ```
 
 This command will install the `pacmod` binary to your `$GOPATH/bin/pacmod` directory, so make sure that is in your `$PATH`.

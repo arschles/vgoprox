@@ -32,3 +32,6 @@ tmp
 
 # prod config file
 config.toml
+
+# generated config file
+config.test.toml

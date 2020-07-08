@@ -1,18 +1,16 @@
 package postgres
 
 import (
-	"os"
 	"testing"
 
-	"github.com/gomods/athens/pkg/config"
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/index/compliance"
 )
 
 func TestPostgres(t *testing.T) {
-	if os.Getenv("TEST_INDEX_POSTGRES") != "true" {
-		t.SkipNow()
-	}
-	cfg := getTestConfig(t)
+	testutil.CheckTestDependencies(t, testutil.TestDependencyPostgres)
+	cfg := testconfig.LoadTestConfig(t).Index.Postgres
 	i, err := New(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -23,13 +21,4 @@ func TestPostgres(t *testing.T) {
 func (i *indexer) clear() error {
 	_, err := i.db.Exec(`DELETE FROM indexes`)
 	return err
-}
-
-func getTestConfig(t *testing.T) *config.Postgres {
-	t.Helper()
-	cfg, err := config.Load("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	return cfg.Index.Postgres
 }

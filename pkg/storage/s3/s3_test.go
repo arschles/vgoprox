@@ -2,12 +2,13 @@ package s3
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/storage/compliance"
 )
@@ -69,10 +70,9 @@ func (s *Storage) createBucket() error {
 }
 
 func getStorage(t testing.TB) *Storage {
-	url := os.Getenv("ATHENS_MINIO_ENDPOINT")
-	if url == "" {
-		t.SkipNow()
-	}
+	t.Helper()
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMinio)
+	url := testconfig.LoadTestConfig(t).Storage.Minio.Endpoint
 
 	options := func(conf *aws.Config) {
 		conf.Endpoint = aws.String(url)

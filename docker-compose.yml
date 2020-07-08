@@ -15,6 +15,50 @@ services:
     depends_on:
       - mongo
       - jaeger
+    volumes:
+      - go-modules:/go/pkg/mod
+  testall:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      args:
+        GOLANG_VERSION: 1.14
+    command: ["./scripts/test_all.sh"]
+    environment:
+      - GO_ENV=test
+      - ATHENS_MINIO_ENDPOINT=minio:9000
+      - ATHENS_MINIO_ACCESS_KEY_ID=minio
+      - ATHENS_MINIO_SECRET_ACCESS_KEY=minio123
+      - ATHENS_MINIO_USE_SSL=false
+      - ATHENS_MINIO_BUCKET_NAME=gomods
+      - ATHENS_MONGO_STORAGE_URL=mongodb://mongo:27017
+      - TIMEOUT=20 # in case the mongo dependency takes longer to start up
+      - ATHENS_STORAGE_TYPE=mongo
+      - ATHENS_INDEX_MYSQL_HOST=mysql
+      - ATHENS_INDEX_POSTGRES_HOST=postgres
+      - ATHENS_INDEX_POSTGRES_PASSWORD=postgres
+      - ATHENS_REDIS_ENDPOINT=redis:6379
+      - PROTECTEDREDIS_ENDPOINT=protectedredis:6380
+      - ATHENS_ETCD_ENDPOINTS=http://etcd0:2379,http://etcd1:2379,http://etcd2:2379
+      - ATHENS_AZURE_ACCOUNT_NAME=devstoreaccount1
+      - ATHENS_AZURE_ACCOUNT_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      - ATHENS_AZURE_PORTAL_URL=http://azurite:10000/devstoreaccount1
+      - ATHENS_AZURE_CONTAINER_NAME=athens-test-container
+      - USE_DEFAULT_CONFIG=true
+    depends_on:
+      - mongo
+      - minio
+      - mysql
+      - postgres
+      - etcd0
+      - etcd1
+      - etcd2
+      - redis
+      - redis-sentinel
+      - protectedredis
+      - azurite
+    volumes:
+      - go-modules:/go/pkg/mod
   testunit:
     build:
       context: .
@@ -28,9 +72,21 @@ services:
       - ATHENS_MONGO_STORAGE_URL=mongodb://mongo:27017
       - TIMEOUT=20 # in case the mongo dependency takes longer to start up
       - ATHENS_STORAGE_TYPE=mongo
+      - ATHENS_INDEX_MYSQL_HOST=mysql
+      - ATHENS_INDEX_POSTGRES_HOST=postgres
+      - ATHENS_ETCD_ENDPOINTS=http://etcd0:2379,http://etcd1:2379,http://etcd2:2379
+      - SKIP_REDIS=true
+      - SKIP_MYSQL=true
+      - SKIP_POSTGRES=true
+      - SKIP_PROTECTEDREDIS=true
+      - SKIP_ETCD=true
+      - SKIP_AZURITE=true
+      - USE_DEFAULT_CONFIG=true
     depends_on:
       - mongo
       - minio
+    volumes:
+      - go-modules:/go/pkg/mod
   teste2e:
     build:
       context: .
@@ -39,20 +95,20 @@ services:
         GOLANG_VERSION: 1.14
     command: ["./scripts/test_e2e.sh"]
   azurite:
-    image: arafato/azurite:2.6.5
+    image: mcr.microsoft.com/azure-storage/azurite:3.8.0
     ports:
-      - 10000:10000
+      - ${AZURITE_10000:-10000}:10000
     environment:
       executable: blob
   mongo:
     image: mongo:3.7.9-jessie
     ports:
-      - 27017:27017
+      - ${MONGO_27017:-27017}:27017
   minio:
     image: minio/minio:latest
     command: server /data
     ports:
-      - "9001:9000"
+      - ${MINIO_9000:-9001}:9000
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
@@ -64,23 +120,23 @@ services:
     image:
       datadog/agent:latest
     ports:
-      - 8126:8126
+      - ${DATADOG_8126:-8126}:8126
   jaeger:
     environment:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9441
     image: jaegertracing/all-in-one:latest
     ports:
-      - 14268:14268
-      - 9411:9411
-      - 5775:5775/udp
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778:5778
-      - 16686:16686
+      - ${JAEGER_14268:-14268}:14268
+      - ${JAEGER_9411:-9411}:9411
+      - ${JAEGER_5775:-5775}:5775/udp
+      - ${JAEGER_6831:-6831}:6831/udp
+      - ${JAEGER_6832:-6832}:6832/udp
+      - ${JAEGER_5778:-5778}:5778
+      - ${JAEGER_16686:-16686}:16686
   redis:
     image: redis
     ports:
-      - 6379:6379
+      - ${REDIS_6379:-6379}:6379
   redis-sentinel:
     image: bitnami/redis-sentinel
     environment:
@@ -89,18 +145,18 @@ services:
       - REDIS_SENTINEL_PASSWORD=sekret
       - REDIS_SENTINEL_QUORUM=1
     ports:
-      - 26379:26379
+      - ${REDIS_SENTINEL_26379:-26379}:26379
   protectedredis:
     image: redis
     ports:
-      - "6380:6380"
+      - ${PROTECTEDREDIS_6380:-6380}:6380
     volumes:
       - "./test/redis.conf:/usr/local/etc/redis/redis.conf"
     entrypoint: ["redis-server", "/usr/local/etc/redis/redis.conf"]
   etcd0:
     image: quay.io/coreos/etcd
     ports:
-      - "2379:2379"
+      - ${ETCD0_2379:-2379}:2379
     volumes:
       - etcd0:/etcd_data
     command:
@@ -122,7 +178,7 @@ services:
   etcd1:
     image: quay.io/coreos/etcd
     ports:
-      - "22379:2379"
+      - ${ETCD1_2379:-22379}:2379
     volumes:
       - etcd1:/etcd_data
     command:
@@ -144,7 +200,7 @@ services:
   etcd2:
     image: quay.io/coreos/etcd
     ports:
-      - "32379:2379"
+      - ${ETCD2_2379:-32379}:2379
     volumes:
       - etcd2:/etcd_data
     command:
@@ -163,8 +219,24 @@ services:
       - http://0.0.0.0:2380
       - -initial-cluster
       - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
-
+  mysql:
+    image: percona:5.7.21
+    command: "--sql-mode=NO_ENGINE_SUBSTITUTION "
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_DATABASE=athens
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  postgres:
+    image: postgres:12.3-alpine
+    ports:
+      - "5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=athens
 volumes:
   etcd0:
   etcd1:
   etcd2:
+  go-modules:

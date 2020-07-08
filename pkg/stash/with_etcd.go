@@ -8,9 +8,8 @@ import (
 	"github.com/gomods/athens/pkg/errors"
 	"github.com/gomods/athens/pkg/observ"
 	"github.com/gomods/athens/pkg/storage"
-	"go.etcd.io/etcd/clientv3"
-	"go.etcd.io/etcd/clientv3/concurrency"
-	"golang.org/x/sync/errgroup"
+	"go.etcd.io/etcd/v3/clientv3"
+	"go.etcd.io/etcd/v3/clientv3/concurrency"
 )
 
 // WithEtcd returns a distributed singleflight
@@ -27,16 +26,11 @@ func WithEtcd(endpoints []string, checker storage.Checker) (Wrapper, error) {
 	if err != nil {
 		return nil, errors.E(op, err)
 	}
-	var eg errgroup.Group
-	for _, ep := range endpoints {
-		eg.Go(func() error {
-			_, err := c.Status(ctx, ep)
-			return err
-		})
-	}
-	err = eg.Wait()
-	if err != nil {
-		return nil, errors.E(op, err)
+	for _, endpoint := range endpoints {
+		_, err = c.Status(ctx, endpoint)
+		if err != nil {
+			return nil, errors.E(op, err)
+		}
 	}
 	return func(s Stasher) Stasher {
 		return &etcd{c, s, checker}

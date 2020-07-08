@@ -1,9 +1,10 @@
 package minio
 
 import (
-	"os"
 	"testing"
 
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/storage/compliance"
 )
@@ -15,11 +16,7 @@ func TestBackend(t *testing.T) {
 
 // TestNewStorageExists tests the logic around MakeBucket and BucketExists
 func TestNewStorageExists(t *testing.T) {
-	url := os.Getenv("ATHENS_MINIO_ENDPOINT")
-	if url == "" {
-		t.SkipNow()
-	}
-
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMinio)
 	tests := []struct {
 		name         string
 		deleteBucket bool
@@ -29,12 +26,9 @@ func TestNewStorageExists(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		backend, err := NewStorage(&config.MinioConfig{
-			Endpoint: url,
-			Key:      "minio",
-			Secret:   "minio123",
-			Bucket:   test.name,
-		}, config.GetTimeoutDuration(300))
+		cfg := testconfig.LoadTestConfig(t).Storage.Minio
+		cfg.Bucket = test.name
+		backend, err := NewStorage(cfg, config.GetTimeoutDuration(300))
 		if err != nil {
 			t.Fatalf("TestNewStorageExists failed for bucketname:  %s, error: %v\n", test.name, err)
 		}
@@ -51,22 +45,16 @@ func TestNewStorageExists(t *testing.T) {
 // To ensure both paths are tested, there is a strict path error using the
 // "_" and a non strict error using less than 3 characters
 func TestNewStorageError(t *testing.T) {
-	url := os.Getenv("ATHENS_MINIO_ENDPOINT")
-	if url == "" {
-		t.SkipNow()
-	}
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMinio)
 
 	// "_" is not allowed in a bucket name
 	// bucket name must be bigger than 3
 	tests := []string{"test_bucket", "1"}
 
 	for _, bucketName := range tests {
-		_, err := NewStorage(&config.MinioConfig{
-			Endpoint: url,
-			Key:      "minio",
-			Secret:   "minio123",
-			Bucket:   bucketName,
-		}, config.GetTimeoutDuration(300))
+		cfg := testconfig.LoadTestConfig(t).Storage.Minio
+		cfg.Bucket = bucketName
+		_, err := NewStorage(cfg, config.GetTimeoutDuration(300))
 		if err == nil {
 			t.Fatalf("TestNewStorageError failed for bucketname:  %s\n", bucketName)
 		}
@@ -92,17 +80,9 @@ func (s *storageImpl) clear() error {
 }
 
 func getStorage(t testing.TB) *storageImpl {
-	url := os.Getenv("ATHENS_MINIO_ENDPOINT")
-	if url == "" {
-		t.SkipNow()
-	}
-
-	backend, err := NewStorage(&config.MinioConfig{
-		Endpoint: url,
-		Key:      "minio",
-		Secret:   "minio123",
-		Bucket:   "gomods",
-	}, config.GetTimeoutDuration(300))
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMinio)
+	cfg := testconfig.LoadTestConfig(t).Storage.Minio
+	backend, err := NewStorage(cfg, config.GetTimeoutDuration(300))
 	if err != nil {
 		t.Fatal(err)
 	}

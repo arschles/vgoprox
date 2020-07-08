@@ -53,7 +53,11 @@ type Storage struct {
 // New creates a new azure blobs storage
 func New(conf *config.AzureBlobConfig, timeout time.Duration) (*Storage, error) {
 	const op errors.Op = "azureblob.New"
-	u, err := url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net", conf.AccountName))
+	portalURL := conf.PortalURL
+	if portalURL == "" {
+		portalURL = fmt.Sprintf("https://%s.blob.core.windows.net", conf.AccountName)
+	}
+	u, err := url.Parse(portalURL)
 	if err != nil {
 		return nil, errors.E(op, err)
 	}

@@ -21,10 +21,28 @@ import (
 func WithAzureBlobLock(conf *config.AzureBlobConfig, timeout time.Duration, checker storage.Checker) (Wrapper, error) {
 	const op errors.Op = "stash.WithAzureBlobLock"
 
-	accountURL, err := url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net", conf.AccountName))
+	containerURL, err := azContainerURL(conf)
 	if err != nil {
 		return nil, errors.E(op, err)
 	}
+
+	return func(s Stasher) Stasher {
+		return &azblobLock{*containerURL, s, checker}
+	}, nil
+}
+
+func azContainerURL(conf *config.AzureBlobConfig) (*azblob.ContainerURL, error) {
+	const op errors.Op = "azContainerURL"
+	portalURL := conf.PortalURL
+	if portalURL == "" {
+		portalURL = fmt.Sprintf("https://%s.blob.core.windows.net", conf.AccountName)
+	}
+
+	accountURL, err := url.Parse(portalURL)
+	if err != nil {
+		return nil, errors.E(op, err)
+	}
+
 	cred, err := azblob.NewSharedKeyCredential(conf.AccountName, conf.AccountKey)
 	if err != nil {
 		return nil, errors.E(op, err)
@@ -33,10 +51,7 @@ func WithAzureBlobLock(conf *config.AzureBlobConfig, timeout time.Duration, chec
 	serviceURL := azblob.NewServiceURL(*accountURL, pipe)
 
 	containerURL := serviceURL.NewContainerURL(conf.ContainerName)
-
-	return func(s Stasher) Stasher {
-		return &azblobLock{containerURL, s, checker}
-	}, nil
+	return &containerURL, nil
 }
 
 type azblobLock struct {

@@ -3,12 +3,13 @@ package stash
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/storage"
 	"github.com/gomods/athens/pkg/storage/mem"
 	"golang.org/x/sync/errgroup"
@@ -18,17 +19,15 @@ import (
 // response. We can ensure that because only the first response does not return an error
 // and therefore all 5 responses should have no error.
 func TestWithRedisLock(t *testing.T) {
-	endpoint := os.Getenv("REDIS_TEST_ENDPOINT")
-	password := os.Getenv("ATHENS_REDIS_PASSWORD")
-	if len(endpoint) == 0 {
-		t.SkipNow()
-	}
+	t.Parallel()
+	testutil.CheckTestDependencies(t, testutil.TestDependencyRedis)
+	cfg := testconfig.LoadTestConfig(t).SingleFlight.Redis
 	strg, err := mem.NewStorage()
 	if err != nil {
 		t.Fatal(err)
 	}
 	ms := &mockRedisStasher{strg: strg}
-	wrapper, err := WithRedisLock(endpoint, password, storage.WithChecker(strg))
+	wrapper, err := WithRedisLock(cfg.Endpoint, cfg.Password, storage.WithChecker(strg))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,17 +52,15 @@ func TestWithRedisLock(t *testing.T) {
 // Verify with WithRedisLock working with password protected redis
 // Same logic as the TestWithRedisLock test.
 func TestWithRedisLockWithPassword(t *testing.T) {
-	endpoint := os.Getenv("PROTECTED_REDIS_TEST_ENDPOINT")
-	password := os.Getenv("ATHENS_PROTECTED_REDIS_PASSWORD")
-	if len(endpoint) == 0 {
-		t.SkipNow()
-	}
+	t.Parallel()
+	testutil.CheckTestDependencies(t, testutil.TestDependencyProtectedRedis)
+	cfg := testconfig.ProtectedRedisConfig(t)
 	strg, err := mem.NewStorage()
 	if err != nil {
 		t.Fatal(err)
 	}
 	ms := &mockRedisStasher{strg: strg}
-	wrapper, err := WithRedisLock(endpoint, password, storage.WithChecker(strg))
+	wrapper, err := WithRedisLock(cfg.Endpoint, cfg.Password, storage.WithChecker(strg))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,16 +85,14 @@ func TestWithRedisLockWithPassword(t *testing.T) {
 // Verify the WithRedisLock fails with the correct error when trying
 // to connect with the wrong password.
 func TestWithRedisLockWithWrongPassword(t *testing.T) {
-	endpoint := os.Getenv("PROTECTED_REDIS_TEST_ENDPOINT")
-	password := ""
-	if len(endpoint) == 0 {
-		t.SkipNow()
-	}
+	t.Parallel()
+	testutil.CheckTestDependencies(t, testutil.TestDependencyProtectedRedis)
+	cfg := testconfig.ProtectedRedisConfig(t)
 	strg, err := mem.NewStorage()
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = WithRedisLock(endpoint, password, storage.WithChecker(strg))
+	_, err = WithRedisLock(cfg.Endpoint, "", storage.WithChecker(strg))
 	if err == nil {
 		t.Fatal("Expected Connection Error")
 	}

@@ -4,16 +4,19 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
-	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/fsouza/fake-gcs-server/fakestorage"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/errors"
 	"github.com/gomods/athens/pkg/storage"
 	"github.com/gomods/athens/pkg/storage/gcp"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -37,10 +40,15 @@ func TestWithGCS(t *testing.T) {
 		t.Fatalf("expected the stash bucket to return a NotFound error but got: %v", err)
 	}
 
+	var stashOnce sync.Once
 	var eg errgroup.Group
 	for i := 0; i < 5; i++ {
 		content := uuid.New().String()
-		ms := &mockGCPStasher{strg, content}
+		ms := &mockGCPStasher{
+			once:    &stashOnce,
+			strg:    strg,
+			content: content,
+		}
 		s := WithGCSLock(ms)
 		eg.Go(func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
@@ -84,44 +92,41 @@ func TestWithGCS(t *testing.T) {
 // so that redis can determine
 // whether to call the underlying stasher or not.
 type mockGCPStasher struct {
+	once    *sync.Once
 	strg    storage.Backend
 	content string
 }
 
 func (ms *mockGCPStasher) Stash(ctx context.Context, mod, ver string) (string, error) {
-	err := ms.strg.Save(
-		ctx,
-		mod,
-		ver,
-		[]byte(ms.content),
-		strings.NewReader(ms.content),
-		[]byte(ms.content),
-	)
+	err := errors.E("gcslock.Stash", assert.AnError, errors.KindAlreadyExists)
+	ms.once.Do(func() {
+		err = ms.strg.Save(
+			ctx,
+			mod,
+			ver,
+			[]byte(ms.content),
+			strings.NewReader(ms.content),
+			[]byte(ms.content),
+		)
+	})
 	return "", err
 }
 
 func getStorage(t *testing.T) *gcp.Storage {
 	t.Helper()
-	cfg := getTestConfig()
-	if cfg == nil {
-		t.SkipNow()
+	server := fakestorage.NewServer(nil)
+
+	err := server.Client().Bucket("athens_drone_stash_bucket").Create(context.Background(), "proj", nil)
+	require.NoError(t, err)
+
+	cfg := &config.GCPConfig{
+		Bucket: "athens_drone_stash_bucket",
 	}
 
-	s, err := gcp.New(context.Background(), cfg, config.GetTimeoutDuration(30))
+	s, err := gcp.New(context.Background(), cfg, config.GetTimeoutDuration(30), server.HTTPClient())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	return s
-}
-
-func getTestConfig() *config.GCPConfig {
-	creds := os.Getenv("GCS_SERVICE_ACCOUNT")
-	if creds == "" {
-		return nil
-	}
-	return &config.GCPConfig{
-		Bucket:  "athens_drone_stash_bucket",
-		JSONKey: creds,
-	}
 }

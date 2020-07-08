@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
-	"os"
 	"testing"
 
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/errors"
 	"github.com/gomods/athens/pkg/storage"
@@ -31,13 +32,10 @@ func BenchmarkBackend(b *testing.B) {
 }
 
 func getStorage(tb testing.TB) *ModuleStore {
-	url := os.Getenv("ATHENS_MONGO_STORAGE_URL")
+	testutil.CheckTestDependencies(tb, testutil.TestDependencyMongo)
 
-	if url == "" {
-		tb.SkipNow()
-	}
-
-	backend, err := NewStorage(&config.MongoConfig{URL: url}, config.GetTimeoutDuration(300))
+	cfg := testconfig.LoadTestConfig(tb).Storage.Mongo
+	backend, err := NewStorage(cfg, config.GetTimeoutDuration(300))
 	require.NoError(tb, err)
 
 	return backend
@@ -98,12 +96,8 @@ func TestQueryKindNotFoundErrorCases(t *testing.T) {
 	}
 }
 func TestNewStorageWithDefaultOverrides(t *testing.T) {
-	url := os.Getenv("ATHENS_MONGO_STORAGE_URL")
-
-	if url == "" {
-		t.SkipNow()
-	}
-
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMongo)
+	url := testconfig.LoadTestConfig(t).Storage.Mongo.URL
 	testCases := []struct {
 		name        string
 		dbName      string

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -27,9 +28,9 @@ type Storage struct {
 // to the path of your service account file. If you're running on GCP (e.g. AppEngine),
 // credentials will be automatically provided.
 // See https://cloud.google.com/docs/authentication/getting-started.
-func New(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Duration) (*Storage, error) {
+func New(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Duration, httpClient *http.Client) (*Storage, error) {
 	const op errors.Op = "gcp.New"
-	s, err := newClient(ctx, gcpConf, timeout)
+	s, err := newClient(ctx, gcpConf, timeout, httpClient)
 	if err != nil {
 		return nil, errors.E(op, err)
 	}
@@ -46,7 +47,7 @@ func New(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Duration) 
 
 // newClient handles the GCS client creation but does not check whether the bucket exists or not
 // this is so that the unit tests can use this to create their own short-lived buckets.
-func newClient(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Duration) (*Storage, error) {
+func newClient(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Duration, httpClient *http.Client) (*Storage, error) {
 	const op errors.Op = "gcp.newClient"
 	opts := []option.ClientOption{}
 	if gcpConf.JSONKey != "" {
@@ -59,6 +60,9 @@ func newClient(ctx context.Context, gcpConf *config.GCPConfig, timeout time.Dura
 			return nil, errors.E(op, fmt.Errorf("could not get GCS credentials: %v", err))
 		}
 		opts = append(opts, option.WithCredentials(creds))
+	}
+	if httpClient != nil {
+		opts = append(opts, option.WithHTTPClient(httpClient))
 	}
 	s, err := storage.NewClient(ctx, opts...)
 	if err != nil {

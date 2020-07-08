@@ -1,0 +1,29 @@
+name: publish-main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  docker-push-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: sha7
+        id: sha7
+        run: echo "::set-output name=sha7::$(echo ${GITHUB_SHA} | cut -c1-7)"
+      - uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: cmd/proxy/Dockerfile
+          repository: gomods/athens-dev
+          build_args: VERSION=${{github.sha}}
+          tags: ${{ steps.sha7.outputs.sha7 }}
+      - uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: cmd/proxy/Dockerfile
+          repository: gomods/athens
+          build_args: VERSION=${{github.sha}}
+          tags: canary

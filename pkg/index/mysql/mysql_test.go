@@ -1,18 +1,16 @@
 package mysql
 
 import (
-	"os"
 	"testing"
 
-	"github.com/gomods/athens/pkg/config"
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/index/compliance"
 )
 
 func TestMySQL(t *testing.T) {
-	if os.Getenv("TEST_INDEX_MYSQL") != "true" {
-		t.SkipNow()
-	}
-	cfg := getTestConfig(t)
+	testutil.CheckTestDependencies(t, testutil.TestDependencyMySQL)
+	cfg := testconfig.LoadTestConfig(t).Index.MySQL
 	i, err := New(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -23,13 +21,4 @@ func TestMySQL(t *testing.T) {
 func (i *indexer) clear() error {
 	_, err := i.db.Exec(`DELETE FROM indexes`)
 	return err
-}
-
-func getTestConfig(t *testing.T) *config.MySQL {
-	t.Helper()
-	cfg, err := config.Load("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	return cfg.Index.MySQL
 }

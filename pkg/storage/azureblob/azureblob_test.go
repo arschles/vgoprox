@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/storage/compliance"
 	"github.com/technosophos/moniker"
@@ -50,11 +52,10 @@ func (s *Storage) clear() error {
 
 func getStorage(t testing.TB) *Storage {
 	t.Helper()
+	testutil.CheckTestDependencies(t, testutil.TestDependencyAzurite)
 	containerName := randomContainerName(os.Getenv("DRONE_PULL_REQUEST"))
-	cfg := getTestConfig(containerName)
-	if cfg == nil {
-		t.SkipNow()
-	}
+	cfg := testconfig.LoadTestConfig(t).Storage.AzureBlob
+	cfg.ContainerName = containerName
 
 	s, err := New(cfg, config.GetTimeoutDuration(30))
 	if err != nil {
@@ -66,22 +67,6 @@ func getStorage(t testing.TB) *Storage {
 	}
 
 	return s
-}
-
-func getTestConfig(containerName string) *config.AzureBlobConfig {
-	key := os.Getenv("ATHENS_AZURE_ACCOUNT_KEY")
-	if key == "" {
-		return nil
-	}
-	name := os.Getenv("ATHENS_AZURE_ACCOUNT_NAME")
-	if name == "" {
-		return nil
-	}
-	return &config.AzureBlobConfig{
-		AccountName:   name,
-		AccountKey:    key,
-		ContainerName: containerName,
-	}
 }
 
 func randomContainerName(prefix string) string {

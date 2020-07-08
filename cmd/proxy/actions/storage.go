@@ -51,7 +51,7 @@ func GetStorage(storageType string, storageConfig *config.Storage, timeout time.
 		if storageConfig.GCP == nil {
 			return nil, errors.E(op, "Invalid GCP Storage Configuration")
 		}
-		return gcp.New(context.Background(), storageConfig.GCP, timeout)
+		return gcp.New(context.Background(), storageConfig.GCP, timeout, nil)
 	case "s3":
 		if storageConfig.S3 == nil {
 			return nil, errors.E(op, "Invalid S3 Storage Configuration")

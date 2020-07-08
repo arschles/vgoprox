@@ -9,6 +9,15 @@ environment:
   GO111MODULE: on
   GOPROXY: https://proxy.golang.org
   SKIP_UNTIL_113: true
+  USE_DEFAULT_CONFIG: true
+  SKIP_POSTGRES: true
+  SKIP_MYSQL: true
+  SKIP_ETCD: true
+  SKIP_MINIO: true
+  SKIP_MONGO: true
+  SKIP_AZURITE: true
+  SKIP_REDIS: true
+  SKIP_PROTECTEDREDIS: true
 
 stack: go 1.14
 

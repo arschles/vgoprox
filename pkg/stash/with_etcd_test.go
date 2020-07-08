@@ -3,12 +3,13 @@ package stash
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/storage"
 	"github.com/gomods/athens/pkg/storage/mem"
 	"golang.org/x/sync/errgroup"
@@ -18,16 +19,14 @@ import (
 // response. We can ensure that because only the first response does not return an error
 // and therefore all 5 responses should have no error.
 func TestEtcdSingleFlight(t *testing.T) {
-	endpointsStr := os.Getenv("ETCD_TEST_ENDPOINTS")
-	if len(endpointsStr) == 0 {
-		t.SkipNow()
-	}
+	testutil.CheckTestDependencies(t, testutil.TestDependencyEtcd)
 	strg, err := mem.NewStorage()
 	if err != nil {
 		t.Fatal(err)
 	}
 	ms := &mockEtcdStasher{strg: strg}
-	endpoints := strings.Split(endpointsStr, ",")
+	cfg := testconfig.LoadTestConfig(t).SingleFlight.Etcd
+	endpoints := strings.Split(cfg.Endpoints, ",")
 	wrapper, err := WithEtcd(endpoints, storage.WithChecker(strg))
 	if err != nil {
 		t.Fatal(err)

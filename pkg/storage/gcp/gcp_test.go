@@ -3,11 +3,13 @@ package gcp
 import (
 	"context"
 	"fmt"
-	"os"
 	"testing"
+	"time"
 
+	"github.com/fsouza/fake-gcs-server/fakestorage"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/storage/compliance"
+	"github.com/stretchr/testify/require"
 	"github.com/technosophos/moniker"
 	"google.golang.org/api/iterator"
 )
@@ -48,37 +50,17 @@ func (s *Storage) clear() error {
 
 func getStorage(t testing.TB) *Storage {
 	t.Helper()
-	bucketName := randomBucketName(os.Getenv("DRONE_PULL_REQUEST"))
-	cfg := getTestConfig(bucketName)
-	if cfg == nil {
-		// Don't fail if there's no test config, so that these tests don't
-		// fail when you run them locally
-		t.Log("No GCS Config found")
-		t.SkipNow()
-	}
 
-	s, err := newClient(context.Background(), cfg, config.GetTimeoutDuration(30))
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = s.bucket.Create(context.Background(), cfg.ProjectID, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	server := fakestorage.NewServer(nil)
 
-	return s
-}
-
-func getTestConfig(bucket string) *config.GCPConfig {
-	creds := os.Getenv("GCS_SERVICE_ACCOUNT")
-	if creds == "" {
-		return nil
+	cfg := &config.GCPConfig{
+		Bucket: randomBucketName("bucket_time"),
 	}
-	return &config.GCPConfig{
-		Bucket:    bucket,
-		JSONKey:   creds,
-		ProjectID: os.Getenv("GCS_PROJECT_ID"),
-	}
+	client, err := newClient(context.Background(), cfg, 30*time.Second, server.HTTPClient())
+	require.NoError(t, err)
+	err = client.bucket.Create(context.Background(), "project_time", nil)
+	require.NoError(t, err)
+	return client
 }
 
 func randomBucketName(prefix string) string {

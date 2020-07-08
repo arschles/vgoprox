@@ -1,0 +1,48 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '~1.14.4'
+      - run: make testdeps
+      - run: make test-all
+  test-all-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make test-all-docker
+  test-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '~1.14.4'
+      - run: make test-e2e
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '~1.14.4'
+      - run: ./scripts/check_gofmt.sh
+      - run: go vet ./...
+  lint-install-charts:
+    runs-on: ubuntu-latest
+    env:
+      CHART_TESTING_IMAGE: quay.io/helmpack/chart-testing
+      CHART_TESTING_TAG: v2.3.3
+      K8S_VERSION: v1.14.2
+      KIND_VERSION: v0.3.0
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      - run: docker run --rm -v "$PWD:/mnt" koalaman/shellcheck:v0.7.1 -x test/*.sh
+      - run: test/e2e-kind.sh
+        timeout-minutes: 60

@@ -136,11 +136,12 @@ func Load(configFile string) (*Config, error) {
 
 	// Use default values
 	log.Println("Running dev mode with default settings, consult config when you're ready to run in production")
-	cfg := defaultConfig()
+	cfg := DefaultConfig()
 	return cfg, envOverride(cfg)
 }
 
-func defaultConfig() *Config {
+// DefaultConfig returns default config
+func DefaultConfig() *Config {
 	return &Config{
 		GoBinary:         "go",
 		GoBinaryEnvVars:  EnvList{"GOPROXY=direct"},

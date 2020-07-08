@@ -9,9 +9,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/azure-storage-blob-go/azblob"
+	"github.com/gomods/athens/internal/testutil"
+	"github.com/gomods/athens/internal/testutil/testconfig"
 	"github.com/gomods/athens/pkg/config"
 	"github.com/gomods/athens/pkg/storage"
 	"github.com/gomods/athens/pkg/storage/mem"
+	"github.com/stretchr/testify/require"
 	"github.com/technosophos/moniker"
 	"golang.org/x/sync/errgroup"
 )
@@ -20,11 +24,9 @@ import (
 // and it will ensure that saving to modules at the same time
 // is done synchronously so that only the first module gets saved.
 func TestWithAzureBlob(t *testing.T) {
+	testutil.CheckTestDependencies(t, testutil.TestDependencyAzurite)
 	containerName := randomContainerName(os.Getenv("DRONE_PULL_REQUEST"))
-	cfg := getAzureTestConfig(containerName)
-	if cfg == nil {
-		t.SkipNow()
-	}
+	cfg := getAzureTestConfig(t, containerName)
 	strg, err := mem.NewStorage()
 	if err != nil {
 		t.Fatal(err)
@@ -84,20 +86,15 @@ func (ms *mockAzureBlobStasher) Stash(ctx context.Context, mod, ver string) (str
 	return "", fmt.Errorf("second time error")
 }
 
-func getAzureTestConfig(containerName string) *config.AzureBlobConfig {
-	key := os.Getenv("ATHENS_AZURE_ACCOUNT_KEY")
-	if key == "" {
-		return nil
-	}
-	name := os.Getenv("ATHENS_AZURE_ACCOUNT_NAME")
-	if name == "" {
-		return nil
-	}
-	return &config.AzureBlobConfig{
-		AccountName:   name,
-		AccountKey:    key,
-		ContainerName: containerName,
-	}
+func getAzureTestConfig(t *testing.T, containerName string) *config.AzureBlobConfig {
+	t.Helper()
+	cfg := testconfig.LoadTestConfig(t).Storage.AzureBlob
+	cfg.ContainerName = containerName
+	containerURL, err := azContainerURL(cfg)
+	require.NoError(t, err)
+	_, err = containerURL.Create(context.Background(), azblob.Metadata{}, azblob.PublicAccessNone)
+	require.NoError(t, err)
+	return cfg
 }
 
 func randomContainerName(prefix string) string {

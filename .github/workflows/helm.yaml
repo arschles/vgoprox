@@ -1,0 +1,62 @@
+name: Helm Charts
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+      types: [opened, reopened, synchronize]
+      paths:
+          - "charts/**"
+
+jobs:
+  charts-e2e:
+    name: Run E2E Tests on the Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+
+      # this can't be run using the github action, it's got some weird error when running
+      # list-changes and install, but since we're only triggering the workflow on changes 
+      # to the helm chart, this is okay.
+
+      - name: Run chart-testing (lint)
+        uses: docker://quay.io/helmpack/chart-testing:v3.0.0
+        with:
+          entrypoint: /usr/local/bin/ct
+          args: lint --target-branch main
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.0.0-alpha.3
+
+      - name: delete default storageclass
+        run: kubectl delete storageclass standard
+
+      - name: create local-path-provisioner storageclass
+        run: kubectl apply -f test/local-path-provisioner.yaml
+
+      - uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: helm/chart-testing
+          version: "28928389" # 28928389 corresponds to v3.0.0, as found via the API.
+          file: "chart-testing_3.0.0_linux_amd64.tar.gz"
+
+      - name: Extract ct binary
+        run: tar xvfz chart-testing_3.0.0_linux_amd64.tar.gz
+
+      - name: Run chart-testing (install)
+        run: ./ct install --helm-extra-args '--timeout 800s' --target-branch main
+
+  publish:
+    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Publish Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Push charts
+        uses: docker://gomods/drone-helm
+        env:
+          CHARTS_REPO: https://athens.blob.core.windows.net
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}

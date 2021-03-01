@@ -86,45 +86,50 @@ func addProxyRoutes(
 	// 4. The plain stash.New just takes a request from upstream and saves it into storage.
 	fs := afero.NewOsFs()
 
-	// TODO: remove before we release v0.7.0
-	if c.GoProxy != "direct" && c.GoProxy != "" {
-		l.Error("GoProxy is deprecated, please use GoBinaryEnvVars")
-	}
-	if !c.GoBinaryEnvVars.HasKey("GONOSUMDB") {
-		c.GoBinaryEnvVars.Add("GONOSUMDB", strings.Join(c.NoSumPatterns, ","))
-	}
-	if err := c.GoBinaryEnvVars.Validate(); err != nil {
-		return err
-	}
-	mf, err := module.NewGoGetFetcher(c.GoBinary, c.GoGetDir, c.GoBinaryEnvVars, fs, c.PropagateAuthHost)
-	if err != nil {
-		return err
-	}
+	if c.Mode == config.ModeOnline {
+		// TODO: remove before we release v0.7.0
+		if c.GoProxy != "direct" && c.GoProxy != "" {
+			l.Error("GoProxy is deprecated, please use GoBinaryEnvVars")
+		}
+		if !c.GoBinaryEnvVars.HasKey("GONOSUMDB") {
+			c.GoBinaryEnvVars.Add("GONOSUMDB", strings.Join(c.NoSumPatterns, ","))
+		}
+		if err := c.GoBinaryEnvVars.Validate(); err != nil {
+			return err
+		}
+		mf, err := module.NewGoGetFetcher(c.GoBinary, c.GoGetDir, c.GoBinaryEnvVars, fs, c.PropagateAuthHost)
+		if err != nil {
+			return err
+		}
 
-	lister := module.NewVCSLister(c.GoBinary, c.GoBinaryEnvVars, fs, c.PropagateAuthHost)
-	checker := storage.WithChecker(s)
-	withSingleFlight, err := getSingleFlight(c, checker)
-	if err != nil {
-		return err
+		lister := module.NewVCSLister(c.GoBinary, c.GoBinaryEnvVars, fs, c.PropagateAuthHost)
+		checker := storage.WithChecker(s)
+		withSingleFlight, err := getSingleFlight(c, checker)
+		if err != nil {
+			return err
+		}
+		st := stash.New(mf, s, indexer, stash.WithPool(c.GoGetWorkers), withSingleFlight)
+
+		df, err := mode.NewFile(c.DownloadMode, c.DownloadURL)
+		if err != nil {
+			return err
+		}
+
+		dpOpts := &download.Opts{
+			Storage:      s,
+			Stasher:      st,
+			Lister:       lister,
+			DownloadFile: df,
+		}
+
+		dp := download.New(dpOpts, addons.WithPool(c.ProtocolWorkers))
+
+		handlerOpts := &download.HandlerOpts{Protocol: dp, Logger: l, DownloadFile: df}
+		download.RegisterHandlers(r, handlerOpts)
+	} else {
+		handlerOpts := &download.OfflineHandlerOpts{Logger: l, Storage: s}
+		download.RegisterOfflineHandlers(r, handlerOpts)
 	}
-	st := stash.New(mf, s, indexer, stash.WithPool(c.GoGetWorkers), withSingleFlight)
-
-	df, err := mode.NewFile(c.DownloadMode, c.DownloadURL)
-	if err != nil {
-		return err
-	}
-
-	dpOpts := &download.Opts{
-		Storage:      s,
-		Stasher:      st,
-		Lister:       lister,
-		DownloadFile: df,
-	}
-
-	dp := download.New(dpOpts, addons.WithPool(c.ProtocolWorkers))
-
-	handlerOpts := &download.HandlerOpts{Protocol: dp, Logger: l, DownloadFile: df}
-	download.RegisterHandlers(r, handlerOpts)
 
 	return nil
 }

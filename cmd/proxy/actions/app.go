@@ -23,6 +23,8 @@ const Service = "proxy"
 // should be defined. This is the nerve center of your
 // application.
 func App(conf *config.Config) (http.Handler, error) {
+	fmt.Printf("Athens is running in %s mode\n", conf.Mode)
+
 	// ENV is used to help switch settings based on where the
 	// application is being run. Default is "development".
 	ENV := conf.GoEnv

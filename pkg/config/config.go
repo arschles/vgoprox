@@ -21,6 +21,7 @@ const defaultConfigFile = "athens.toml"
 // Config provides configuration values for all components
 type Config struct {
 	TimeoutConf
+	Mode              Mode      `validate:"required" envconfig:"MODE"`
 	GoEnv             string    `validate:"required" envconfig:"GO_ENV"`
 	GoBinary          string    `validate:"required" envconfig:"GO_BINARY_PATH"`
 	GoProxy           string    `envconfig:"GOPROXY"`
@@ -61,6 +62,13 @@ type Config struct {
 	Storage           *Storage
 	Index             *Index
 }
+
+type Mode string
+
+const (
+	ModeOffline Mode = "offline"
+	ModeOnline  Mode = "online"
+)
 
 // EnvList is a list of key-value environment
 // variables that are passed to the Go command

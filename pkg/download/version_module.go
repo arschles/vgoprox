@@ -6,6 +6,7 @@ import (
 	"github.com/gomods/athens/pkg/download/mode"
 	"github.com/gomods/athens/pkg/errors"
 	"github.com/gomods/athens/pkg/log"
+	"github.com/gomods/athens/pkg/storage"
 )
 
 // PathVersionModule URL.
@@ -43,6 +44,23 @@ func ModuleHandler(dp Protocol, lggr log.Entry, df *mode.DownloadFile) http.Hand
 		}
 
 		w.Write(modBts)
+	}
+	return http.HandlerFunc(f)
+}
+
+// OfflineModuleHandler implements GET baseURL/module/@v/version.mod
+func OfflineModuleHandler(lggr log.Entry, s storage.Backend) http.Handler {
+	const op errors.Op = "download.VersionModuleHandler"
+	f := func(w http.ResponseWriter, r *http.Request) {
+		mod, ver, err := getModuleParams(r, op)
+		if err != nil {
+			err = errors.E(op, errors.M(mod), errors.V(ver), err)
+			lggr.SystemErr(err)
+			w.WriteHeader(errors.Kind(err))
+			return
+		}
+		modBytes, err := s.GoMod(r.Context(), mod, ver)
+		w.Write(modBytes)
 	}
 	return http.HandlerFunc(f)
 }

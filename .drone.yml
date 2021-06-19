@@ -55,8 +55,8 @@ steps:
       from_secret: GCS_SERVICE_ACCOUNT
     GCS_PROJECT_ID: 
       from_secret: GOOGLE_CLOUD_PROJECT
-    ATHENS_AZURE_ACCOUNT_NAME:
-      from_secret: ATHENS_AZURE_ACCOUNT_NAME
+    ATHENS_ACCOUNT_NAME:
+      from_secret: AZURE_ACCOUNT_NAME
     ATHENS_AZURE_ACCOUNT_KEY: 
       from_secret: ATHENS_AZURE_ACCOUNT_KEY
   when:

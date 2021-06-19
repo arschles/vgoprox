@@ -1,8 +1,9 @@
 package mode
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/gomods/athens/pkg/errors"
 )
 
 var testCases = []struct {
@@ -126,28 +127,57 @@ func TestMode(t *testing.T) {
 }
 
 func TestNewFile_err(t *testing.T) {
+	const op = errors.Op("downloadMode.NewFile")
 	tc := []struct {
-		name     string
-		mode     Mode
-		expected string
+		name   string
+		mode   Mode
+		hasErr bool
 	}{
 		{
-			name:     "empty mode",
-			mode:     "",
-			expected: downloadModeErr,
+			name:   "empty mode",
+			mode:   "",
+			hasErr: true,
 		},
 		{
-			name:     "invalid mode",
-			mode:     "invalidMode",
-			expected: fmt.Sprintf(invalidModeErr, "invalidMode"),
+			name:   "invalid mode",
+			mode:   "invalidMode",
+			hasErr: true,
 		},
 	}
 	for _, c := range tc {
 		t.Run(c.name, func(subT *testing.T) {
 			_, err := NewFile(c.mode, "github.com/gomods/athens")
-			if err.Error() != c.expected {
-				t.Fatalf("expected error %s from NewFile, got %s", c.expected, err.Error())
+			if c.hasErr && err == nil {
+				t.Errorf(
+					"Expected error for mode %s, but got none",
+					c.mode,
+				)
+			}
+			if !c.hasErr && err != nil {
+				t.Errorf(
+					"Expected no error for mode %s, but got %s",
+					c.mode,
+					err,
+				)
 			}
 		})
+	}
+	// loop through all of the valid modes
+	modeStrings := []string{
+		"sync",
+		"async",
+		"redirect",
+		"async_redirect",
+		"none",
+	}
+	for _, modeString := range modeStrings {
+		_, err := NewFile(Mode(modeString), "github.com/gomods/athens")
+		if err != nil {
+			t.Errorf(
+				"Expected no error for mode %s, got %s",
+				modeString,
+				err,
+			)
+		}
 	}
 }

@@ -140,8 +140,7 @@ func App(conf *config.Config) (http.Handler, error) {
 		lggr,
 		conf,
 	); err != nil {
-		err = fmt.Errorf("error adding proxy routes (%s)", err)
-		return nil, err
+		return nil, fmt.Errorf("Error initializing Athens:\n%s", err)
 	}
 
 	h := &ochttp.Handler{

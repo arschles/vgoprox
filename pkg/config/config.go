@@ -51,7 +51,7 @@ type Config struct {
 	TLSKeyFile       string    `envconfig:"ATHENS_TLSKEY_FILE"`
 	SumDBs           []string  `envconfig:"ATHENS_SUM_DBS"`
 	NoSumPatterns    []string  `envconfig:"ATHENS_GONOSUM_PATTERNS"`
-	DownloadMode     mode.Mode `envconfig:"ATHENS_DOWNLOAD_MODE"`
+	DownloadMode     mode.Mode `validate:"required" envconfig:"ATHENS_DOWNLOAD_MODE" default:"sync"`
 	DownloadURL      string    `envconfig:"ATHENS_DOWNLOAD_URL"`
 	SingleFlightType string    `envconfig:"ATHENS_SINGLE_FLIGHT_TYPE"`
 	RobotsFile       string    `envconfig:"ATHENS_ROBOTS_FILE"`

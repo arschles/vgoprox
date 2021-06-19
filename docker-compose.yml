@@ -38,6 +38,15 @@ services:
       args:
         GOLANG_VERSION: 1.14
     command: ["./scripts/test_e2e.sh"]
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9091:9090
+    volumes:
+      - ./assets/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${ATHENS_STORAGE}/prometheus:/prometheus/data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
   azurite:
     image: arafato/azurite:2.6.5
     ports:

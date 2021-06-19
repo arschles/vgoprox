@@ -147,9 +147,9 @@ After this you can pass your credentials inside `config.toml` file.  If the acce
             # attempt to find credentials in the environment, in the shared
             # configuration (~/.aws/credentials) and from ec2 instance role
             # credentials. See
-            # https://godoc.org/github.com/aws/aws-sdk-go#hdr-Configuring_Credentials
+            # https://pkg.go.dev/github.com/aws/aws-sdk-go#hdr-Configuring_Credentials
             # and
-            # https://godoc.org/github.com/aws/aws-sdk-go/aws/session#hdr-Environment_Variables
+            # https://pkg.go.dev/github.com/aws/aws-sdk-go/aws/session#hdr-Environment_Variables
             # for environment variables that will affect the aws configuration.
             # Setting UseDefaultConfiguration would only use default configuration. It will be deprecated in future releases 
             # and is recommended not to use it.
@@ -183,9 +183,9 @@ After this you can pass your credentials inside `config.toml` file.  If the acce
             # attempt to find credentials in the environment, in the shared
             # configuration (~/.aws/credentials) and from ec2 instance role
             # credentials. See
-            # https://godoc.org/github.com/aws/aws-sdk-go#hdr-Configuring_Credentials
+            # https://pkg.go.dev/github.com/aws/aws-sdk-go#hdr-Configuring_Credentials
             # and
-            # https://godoc.org/github.com/aws/aws-sdk-go/aws/session#hdr-Environment_Variables
+            # https://pkg.go.dev/github.com/aws/aws-sdk-go/aws/session#hdr-Environment_Variables
             # for environment variables that will affect the aws configuration.
             # Env override: AWS_USE_DEFAULT_CONFIGURATION
             UseDefaultConfiguration = false

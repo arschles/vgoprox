@@ -5,102 +5,102 @@ Athens does not try to reinvent the wheel! Instead, it uses the already great wh
 Thank you to the following **GIANTS**:
 
 
-* [cloud.google.com/go](https://godoc.org/cloud.google.com/go)
+* [cloud.google.com/go](https://pkg.go.dev/cloud.google.com/go)
 
-* [contrib.go.opencensus.io/exporter/stackdriver](https://godoc.org/contrib.go.opencensus.io/exporter/stackdriver)
+* [contrib.go.opencensus.io/exporter/stackdriver](https://pkg.go.dev/contrib.go.opencensus.io/exporter/stackdriver)
 
-* [github.com/Azure/azure-storage-blob-go](https://godoc.org/github.com/Azure/azure-storage-blob-go)
+* [github.com/Azure/azure-storage-blob-go](https://pkg.go.dev/github.com/Azure/azure-storage-blob-go)
 
-* [github.com/BurntSushi/toml](https://godoc.org/github.com/BurntSushi/toml)
+* [github.com/BurntSushi/toml](https://pkg.go.dev/github.com/BurntSushi/toml)
 
-* [github.com/DataDog/datadog-go](https://godoc.org/github.com/DataDog/datadog-go)
+* [github.com/DataDog/datadog-go](https://pkg.go.dev/github.com/DataDog/datadog-go)
 
-* [github.com/DataDog/opencensus-go-exporter-datadog](https://godoc.org/github.com/DataDog/opencensus-go-exporter-datadog)
+* [github.com/DataDog/opencensus-go-exporter-datadog](https://pkg.go.dev/github.com/DataDog/opencensus-go-exporter-datadog)
 
-* [github.com/aws/aws-sdk-go](https://godoc.org/github.com/aws/aws-sdk-go)
+* [github.com/aws/aws-sdk-go](https://pkg.go.dev/github.com/aws/aws-sdk-go)
 
-* [github.com/fatih/color](https://godoc.org/github.com/fatih/color)
+* [github.com/fatih/color](https://pkg.go.dev/github.com/fatih/color)
 
-* [github.com/globalsign/mgo](https://godoc.org/github.com/globalsign/mgo)
+* [github.com/globalsign/mgo](https://pkg.go.dev/github.com/globalsign/mgo)
 
-* [github.com/go-playground/locales](https://godoc.org/github.com/go-playground/locales)
+* [github.com/go-playground/locales](https://pkg.go.dev/github.com/go-playground/locales)
 
-* [github.com/go-playground/universal-translator](https://godoc.org/github.com/go-playground/universal-translator)
+* [github.com/go-playground/universal-translator](https://pkg.go.dev/github.com/go-playground/universal-translator)
 
-* [github.com/gobuffalo/envy](https://godoc.org/github.com/gobuffalo/envy)
+* [github.com/gobuffalo/envy](https://pkg.go.dev/github.com/gobuffalo/envy)
 
-* [github.com/gobuffalo/httptest](https://godoc.org/github.com/gobuffalo/httptest)
+* [github.com/gobuffalo/httptest](https://pkg.go.dev/github.com/gobuffalo/httptest)
 
-* [github.com/gogo/protobuf](https://godoc.org/github.com/gogo/protobuf)
+* [github.com/gogo/protobuf](https://pkg.go.dev/github.com/gogo/protobuf)
 
-* [github.com/golang/glog](https://godoc.org/github.com/golang/glog)
+* [github.com/golang/glog](https://pkg.go.dev/github.com/golang/glog)
 
-* [github.com/google/go-cmp](https://godoc.org/github.com/google/go-cmp)
+* [github.com/google/go-cmp](https://pkg.go.dev/github.com/google/go-cmp)
 
-* [github.com/google/martian](https://godoc.org/github.com/google/martian)
+* [github.com/google/martian](https://pkg.go.dev/github.com/google/martian)
 
-* [github.com/googleapis/gax-go](https://godoc.org/github.com/googleapis/gax-go)
+* [github.com/googleapis/gax-go](https://pkg.go.dev/github.com/googleapis/gax-go)
 
-* [github.com/gopherjs/gopherjs](https://godoc.org/github.com/gopherjs/gopherjs)
+* [github.com/gopherjs/gopherjs](https://pkg.go.dev/github.com/gopherjs/gopherjs)
 
-* [github.com/gorilla/mux](https://godoc.org/github.com/gorilla/mux)
+* [github.com/gorilla/mux](https://pkg.go.dev/github.com/gorilla/mux)
 
-* [github.com/hashicorp/go-multierror](https://godoc.org/github.com/hashicorp/go-multierror)
+* [github.com/hashicorp/go-multierror](https://pkg.go.dev/github.com/hashicorp/go-multierror)
 
-* [github.com/jtolds/gls](https://godoc.org/github.com/jtolds/gls)
+* [github.com/jtolds/gls](https://pkg.go.dev/github.com/jtolds/gls)
 
-* [github.com/kelseyhightower/envconfig](https://godoc.org/github.com/kelseyhightower/envconfig)
+* [github.com/kelseyhightower/envconfig](https://pkg.go.dev/github.com/kelseyhightower/envconfig)
 
-* [github.com/konsorten/go-windows-terminal-sequences](https://godoc.org/github.com/konsorten/go-windows-terminal-sequences)
+* [github.com/konsorten/go-windows-terminal-sequences](https://pkg.go.dev/github.com/konsorten/go-windows-terminal-sequences)
 
-* [github.com/kr/pretty](https://godoc.org/github.com/kr/pretty)
+* [github.com/kr/pretty](https://pkg.go.dev/github.com/kr/pretty)
 
-* [github.com/mattn/go-colorable](https://godoc.org/github.com/mattn/go-colorable)
+* [github.com/mattn/go-colorable](https://pkg.go.dev/github.com/mattn/go-colorable)
 
-* [github.com/mattn/go-isatty](https://godoc.org/github.com/mattn/go-isatty)
+* [github.com/mattn/go-isatty](https://pkg.go.dev/github.com/mattn/go-isatty)
 
-* [github.com/minio/minio-go](https://godoc.org/github.com/minio/minio-go)
+* [github.com/minio/minio-go](https://pkg.go.dev/github.com/minio/minio-go)
 
-* [github.com/mitchellh/go-homedir](https://godoc.org/github.com/mitchellh/go-homedir)
+* [github.com/mitchellh/go-homedir](https://pkg.go.dev/github.com/mitchellh/go-homedir)
 
-* [github.com/philhofer/fwd](https://godoc.org/github.com/philhofer/fwd)
+* [github.com/philhofer/fwd](https://pkg.go.dev/github.com/philhofer/fwd)
 
-* [github.com/prometheus/client_golang](https://godoc.org/github.com/prometheus/client_golang)
+* [github.com/prometheus/client_golang](https://pkg.go.dev/github.com/prometheus/client_golang)
 
-* [github.com/sirupsen/logrus](https://godoc.org/github.com/sirupsen/logrus)
+* [github.com/sirupsen/logrus](https://pkg.go.dev/github.com/sirupsen/logrus)
 
-* [github.com/smartystreets/assertions](https://godoc.org/github.com/smartystreets/assertions)
+* [github.com/smartystreets/assertions](https://pkg.go.dev/github.com/smartystreets/assertions)
 
-* [github.com/smartystreets/goconvey](https://godoc.org/github.com/smartystreets/goconvey)
+* [github.com/smartystreets/goconvey](https://pkg.go.dev/github.com/smartystreets/goconvey)
 
-* [github.com/spf13/afero](https://godoc.org/github.com/spf13/afero)
+* [github.com/spf13/afero](https://pkg.go.dev/github.com/spf13/afero)
 
-* [github.com/stretchr/testify](https://godoc.org/github.com/stretchr/testify)
+* [github.com/stretchr/testify](https://pkg.go.dev/github.com/stretchr/testify)
 
-* [github.com/tinylib/msgp](https://godoc.org/github.com/tinylib/msgp)
+* [github.com/tinylib/msgp](https://pkg.go.dev/github.com/tinylib/msgp)
 
-* [github.com/unrolled/secure](https://godoc.org/github.com/unrolled/secure)
+* [github.com/unrolled/secure](https://pkg.go.dev/github.com/unrolled/secure)
 
-* [go.opencensus.io](https://godoc.org/go.opencensus.io)
+* [go.opencensus.io](https://pkg.go.dev/go.opencensus.io)
 
-* [golang.org/x/crypto](https://godoc.org/golang.org/x/crypto)
+* [golang.org/x/crypto](https://pkg.go.dev/golang.org/x/crypto)
 
-* [golang.org/x/net](https://godoc.org/golang.org/x/net)
+* [golang.org/x/net](https://pkg.go.dev/golang.org/x/net)
 
-* [golang.org/x/oauth2](https://godoc.org/golang.org/x/oauth2)
+* [golang.org/x/oauth2](https://pkg.go.dev/golang.org/x/oauth2)
 
-* [golang.org/x/sync](https://godoc.org/golang.org/x/sync)
+* [golang.org/x/sync](https://pkg.go.dev/golang.org/x/sync)
 
-* [golang.org/x/sys](https://godoc.org/golang.org/x/sys)
+* [golang.org/x/sys](https://pkg.go.dev/golang.org/x/sys)
 
-* [google.golang.org/api](https://godoc.org/google.golang.org/api)
+* [google.golang.org/api](https://pkg.go.dev/google.golang.org/api)
 
-* [google.golang.org/appengine](https://godoc.org/google.golang.org/appengine)
+* [google.golang.org/appengine](https://pkg.go.dev/google.golang.org/appengine)
 
-* [gopkg.in/DataDog/dd-trace-go.v1](https://godoc.org/gopkg.in/DataDog/dd-trace-go.v1)
+* [gopkg.in/DataDog/dd-trace-go.v1](https://pkg.go.dev/gopkg.in/DataDog/dd-trace-go.v1)
 
-* [gopkg.in/check.v1](https://godoc.org/gopkg.in/check.v1)
+* [gopkg.in/check.v1](https://pkg.go.dev/gopkg.in/check.v1)
 
-* [gopkg.in/go-playground/assert.v1](https://godoc.org/gopkg.in/go-playground/assert.v1)
+* [gopkg.in/go-playground/assert.v1](https://pkg.go.dev/gopkg.in/go-playground/assert.v1)
 
-* [gopkg.in/go-playground/validator.v9](https://godoc.org/gopkg.in/go-playground/validator.v9)
+* [gopkg.in/go-playground/validator.v9](https://pkg.go.dev/gopkg.in/go-playground/validator.v9)

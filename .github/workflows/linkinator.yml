@@ -1,0 +1,19 @@
+name: Check links on all markdown documents
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  linkinator:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: JustinBeckwith/linkinator-action@v1
+        with:
+          paths: "**/*.md"
+          markdown: true
+          retry: true
+          linksToSkip: "http://localhost:1313/, ^((?!http).)*$"
+          verbosity: INFO

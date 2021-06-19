@@ -3,7 +3,7 @@
 ![Athens Banner](./docs/static/banner.png)
 
 [![Build Status](https://cloud.drone.io/api/badges/gomods/athens/status.svg)](https://cloud.drone.io/gomods/athens)
-[![GoDoc](https://godoc.org/github.com/gomods/athens?status.svg)](https://godoc.org/github.com/gomods/athens)
+[![GoDoc](https://pkg.go.dev/github.com/gomods/athens?status.svg)](https://pkg.go.dev/github.com/gomods/athens)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gomods/athens)](https://goreportcard.com/report/github.com/gomods/athens)
 [![codecov](https://codecov.io/gh/gomods/athens/branch/master/graph/badge.svg)](https://codecov.io/gh/gomods/athens)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gomods/athens.svg?maxAge=604800)](https://hub.docker.com/r/gomods/athens/)

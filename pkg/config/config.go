@@ -49,6 +49,7 @@ type Config struct {
 	HGRCPath         string    `envconfig:"ATHENS_HGRC_PATH"`
 	TLSCertFile      string    `envconfig:"ATHENS_TLSCERT_FILE"`
 	TLSKeyFile       string    `envconfig:"ATHENS_TLSKEY_FILE"`
+	TLSCACertFile    string    `envconfig:"ATHENS_TLSCACERT_FILE"`
 	SumDBs           []string  `envconfig:"ATHENS_SUM_DBS"`
 	NoSumPatterns    []string  `envconfig:"ATHENS_GONOSUM_PATTERNS"`
 	DownloadMode     mode.Mode `envconfig:"ATHENS_DOWNLOAD_MODE"`
@@ -213,26 +214,36 @@ func (c *Config) BasicAuth() (user, pass string, ok bool) {
 
 // TLSCertFiles returns certificate and key files and an error if
 // both files doesn't exist and have approperiate file permissions
-func (c *Config) TLSCertFiles() (cert, key string, err error) {
+func (c *Config) TLSCertFiles() (cert, key string, cacert string, err error) {
 	if c.TLSCertFile == "" && c.TLSKeyFile == "" {
-		return "", "", nil
+		return "", "", "", nil
 	}
 
 	certFile, err := os.Stat(c.TLSCertFile)
 	if err != nil {
-		return "", "", fmt.Errorf("Could not access TLSCertFile: %v", err)
+		return "", "", "", fmt.Errorf("Could not access TLSCertFile: %v", err)
 	}
 
 	keyFile, err := os.Stat(c.TLSKeyFile)
 	if err != nil {
-		return "", "", fmt.Errorf("Could not access TLSKeyFile: %v", err)
+		return "", "", "", fmt.Errorf("Could not access TLSKeyFile: %v", err)
 	}
 
 	if keyFile.Mode()&077 != 0 && runtime.GOOS != "windows" {
-		return "", "", fmt.Errorf("TLSKeyFile should not be accessible by others")
+		return "", "", "", fmt.Errorf("TLSKeyFile should not be accessible by others")
 	}
 
-	return certFile.Name(), keyFile.Name(), nil
+	if c.TLSCACertFile == "" {
+		return certFile.Name(), keyFile.Name(), "", nil
+	}
+
+	caCertFile, err := os.Stat(c.TLSCACertFile)
+	if err != nil {
+		return "", "", "", fmt.Errorf("Could not access TLSCACertFile: %v", err)
+	}
+
+	return certFile.Name(), keyFile.Name(), caCertFile.Name(), nil
+
 }
 
 // FilterOff returns true if the FilterFile is empty

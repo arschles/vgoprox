@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -38,15 +41,37 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cert, key, err := conf.TLSCertFiles()
+	cert, key, mtlsCert, err := conf.TLSCertFiles()
 	if err != nil {
 		log.Fatal(err)
 	}
+	var srv *http.Server
 
-	srv := &http.Server{
-		Addr:    conf.Port,
-		Handler: handler,
+	if mtlsCert != "" {
+		clientCACert, err := ioutil.ReadFile(conf.TLSCACertFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		clientCertPool := x509.NewCertPool()
+		clientCertPool.AppendCertsFromPEM(clientCACert)
+		tlsConfig := &tls.Config{
+			ClientAuth:               tls.RequireAndVerifyClientCert,
+			ClientCAs:                clientCertPool,
+			PreferServerCipherSuites: true,
+			MinVersion:               tls.VersionTLS12,
+		}
+		srv = &http.Server{
+			Addr:      conf.Port,
+			Handler:   handler,
+			TLSConfig: tlsConfig,
+		}
+	} else {
+		srv = &http.Server{
+			Addr:    conf.Port,
+			Handler: handler,
+		}
 	}
+
 	idleConnsClosed := make(chan struct{})
 
 	go func() {

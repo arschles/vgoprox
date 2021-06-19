@@ -1,0 +1,24 @@
+#
+#	Used to optionally provide support for mTLS
+#
+version: '3'
+
+services:
+
+  dev:
+    environment:
+      ATHENS_TLSCERT_FILE: /etc/athens/backend/web.cert.pem    
+      ATHENS_TLSKEY_FILE: /etc/athens/backend/web.key.pem    
+      ATHENS_TLSCACERT_FILE: /etc/athens/backend/ca-chain.cert.pem
+    volumes:
+    - ./mtls/certs:/etc/athens
+
+  nginx:
+    image: nginx:latest
+    depends_on: [dev]
+    volumes:
+    - ./mtls/nginx/conf.d:/etc/nginx/conf.d
+    - ./mtls/certs:/etc/nginx/mtls_certs
+    ports:
+      - "443:443"
+      - "80:80"

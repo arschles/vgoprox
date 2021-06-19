@@ -98,12 +98,13 @@ func (p *protocol) List(ctx context.Context, mod string) ([]string, error) {
 
 	// if i.e. github is unavailable we should fail as well so that the behavior of the proxy is stable.
 	// otherwise we will get different results the next time because i.e. GH is up again
-	isUnexpGoErr := goErr != nil && !errors.IsRepoNotFoundErr(goErr)
+	isUnexpGoErr := goErr != nil && !errors.IsRepoNotFoundErr(goErr) && !errors.IsRepoNoAuthErr(goErr)
 	if isUnexpGoErr {
 		return nil, errors.E(op, goErr)
 	}
 
-	isRepoNotFoundErr := goErr != nil && errors.IsRepoNotFoundErr(goErr)
+	// Authentication failure should return 404 status code
+	isRepoNotFoundErr := goErr != nil && (errors.IsRepoNotFoundErr(goErr) || errors.IsRepoNoAuthErr(goErr))
 	storageEmpty := len(strList) == 0
 	if isRepoNotFoundErr && storageEmpty {
 		return nil, errors.E(op, errors.M(mod), errors.KindNotFound, goErr)

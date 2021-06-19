@@ -123,7 +123,7 @@ RobotsFile = "robots.txt"
 Timeout = 300
 
 # StorageType sets the type of storage backend the proxy will use.
-# Possible values are memory, disk, mongo, gcp, minio, s3, azureblob, external
+# Possible values are memory, disk, mongo, gcp, minio, s3, azureblob, external, artifactory
 # Defaults to memory
 # Env override: ATHENS_STORAGE_TYPE
 StorageType = "memory"
@@ -491,6 +491,31 @@ IndexType = "none"
         # details.
         # Env override: ATHENS_EXTERNAL_STORAGE_URL
         URL = ""
+
+   [Storage.Artifactory]
+        # URL for Artifactory instance
+        # Env override: ATHENS_ARTIFACTORY_URL
+        URL = "https://artifactory.example.com:8083/"
+
+        # Name of repository in artifactory
+        # Env override: ATHENS_ARTIFACTORY_REPOSITORY
+        Repository = "release"
+
+        # Username to use with basic authentication to artifactory
+        # Env override: ATHENS_ARTIFACTORY_USERNAME
+        Username = ""
+
+        # Password to use with basic authentication to artifactory
+        # Env override: ATHENS_ARTIFACTORY_PASSWORD
+        Password = ""
+
+        # APIKey to use with key authentication to artifactory
+        # Env override: ATHENS_ARTIFACTORY_API_KEY
+        APIKey = ""
+
+        # AccessToken to use with token authentication to artifactory
+        # Env override: ATHENS_ARTIFACTORY_ACCESS_TOKEN
+        AccessToken = ""
 
 [Index]
     [Index.MySQL]

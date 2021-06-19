@@ -329,6 +329,8 @@ func validateStorage(validate *validator.Validate, storageType string, config *S
 		return validate.Struct(config.AzureBlob)
 	case "external":
 		return validate.Struct(config.External)
+	case "artifactory":
+		return validate.Struct(config.Artifactory)
 	default:
 		return fmt.Errorf("storage type %q is unknown", storageType)
 	}

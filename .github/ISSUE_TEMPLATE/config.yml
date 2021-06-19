@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+
+contact_links:
+- name: Propose a feature
+  url: https://github.com/gomods/athens/discussions/new
+  about: Please propose a new feature on GitHub discussions instead of here in an issue

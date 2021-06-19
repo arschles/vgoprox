@@ -1,3 +1,4 @@
+---
 replicaCount: 1
 image:
   registry: docker.io
@@ -38,11 +39,18 @@ service:
 ingress:
   enabled: false
   # Provide key/value annotations
-  annotations:
+  annotations: {}
   # Provide an array of values for the ingress host mapping
-  hosts:
+  hosts: []
   # Provide a base64 encoded cert for TLS use
-  tls:
+  tls: ""
+  # To customize default path
+  # This is useful for ALB users.
+  customPath: ""
+  extraPaths: []
+#    - service: ssl-redirect
+#      port: use-annotation
+#      path: /*
 
 storage:
   type: disk

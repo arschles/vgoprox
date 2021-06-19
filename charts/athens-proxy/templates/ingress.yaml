@@ -1,6 +1,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $serviceName := include "fullname" . -}}
 {{- $servicePort := .Values.service.servicePort -}}
+{{- $ingressExtraPaths := .Values.ingress.extraPaths -}}
+{{- $customPath := .Values.ingress.customPath -}}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -24,7 +26,13 @@ spec:
     - host: {{ $host }}
       http:
         paths:
-          - path: /
+          {{- range $ingressExtraPaths }}
+          - path: {{ default "/" .path | quote }}
+            backend:
+              serviceName: {{ default $serviceName .service }}
+              servicePort: {{ default $servicePort .port }}
+          {{- end }}
+          - path: {{ default "/" $customPath | quote }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}

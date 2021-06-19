@@ -48,6 +48,33 @@ Available options:
 - [.netrc file support](https://docs.gomods.io/install/install-on-kubernetes/#netrc-file-support)
 - [gitconfig support](https://docs.gomods.io/install/install-on-kubernetes/#gitconfig-support)
 
+### [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/) ssl redirect using annotation
+Using `.Values.ingress.extraPaths` you can define extra paths to the each hosts. So now we can define
+extraPaths to `use-annotation` like it mentioned [here](https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/tasks/ssl_redirect/)
+
+The example below shows how to setup ssl-redirect for AWS LoadBalancer Controller.
+
+```yaml
+ingress:
+  enabled: true
+  annotations:
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    # legalone.io wildcard
+    alb.ingress.kubernetes.io/certificate-arn: ACM ARN
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/tags: Service=athens-proxy,Environment=k-production
+    alb.ingress.kubernetes.io/target-type: instance
+    kubernetes.io/ingress.class: alb
+  # Provide an array of values for the ingress host mapping
+  hosts:
+    - athens-proxy.host
+  extraPaths:
+    # This will be added to each hosts
+    - service: ssl-redirect
+      port: use-annotation
+      path: /*
+```
 ### Pass extra configuration environment variables
 
 You can pass any extra environment variables supported in [config.dev.toml](../../../config.dev.toml).

@@ -260,6 +260,21 @@ NoSumPatterns = []
 # Env override: ATHENS_DOWNLOAD_MODE
 DownloadMode = "sync"
 
+# NetworkMode configures how Athens will return the results
+# of the /list endpoint as it can be assembled from both its own
+# storage and the upstream VCS.
+# 
+# Note, that for better error messaging, this would also affect how other
+# endpoints behave.
+# 
+# Modes:
+# 1. strict: merge VCS versions with storage versions, but fail if either of them fails.
+# 2. offline: only get storage versions, never reach out to VCS.
+# 3. fallback: only return storage versions, if VCS fails. Note this means that you may
+# see inconsistent results since fallback mode does a best effort of giving you what's
+# available at the time of requesting versions.
+NetworkMode = "strict"
+
 # DownloadURL is the URL that will be used if
 # DownloadMode is set to "redirect"
 # Env override: ATHENS_DOWNLOAD_URL

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/gomods/athens/pkg/config"
@@ -68,6 +69,10 @@ func (l *vcsLister) List(ctx context.Context, module string) (*storage.RevInfo, 
 	err = cmd.Run()
 	if err != nil {
 		err = fmt.Errorf("%v: %s", err, stderr)
+		if gitAuthFailed(err) {
+			err := fmt.Errorf("git authorization failed: %v", err)
+			return nil, nil, errors.E(op, err, errors.KindUnauthorized)
+		}
 		// as of now, we can't recognize between a true NotFound
 		// and an unexpected error, so we choose the more
 		// hopeful path of NotFound. This way the Go command
@@ -88,4 +93,8 @@ func (l *vcsLister) List(ctx context.Context, module string) (*storage.RevInfo, 
 		Version: lr.Version,
 	}
 	return &rev, lr.Versions, nil
+}
+
+func gitAuthFailed(errCmd error) bool {
+	return strings.Contains(errCmd.Error(), "fatal: could not read Username for 'https://github.com'")
 }

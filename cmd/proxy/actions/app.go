@@ -32,7 +32,6 @@ func App(conf *config.Config) (http.Handler, error) {
 			fmt.Println("Cannot provide both GithubToken and NETRCPath. Only provide one.")
 			os.Exit(1)
 		}
-
 		netrcFromToken(conf.GithubToken)
 	}
 

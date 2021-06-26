@@ -138,6 +138,11 @@ func downloadModule(
 	err := cmd.Run()
 	if err != nil {
 		err = fmt.Errorf("%v: %s", err, stderr)
+		if gitAuthFailed(err) {
+			err := fmt.Errorf("git authorization failed: %v", err)
+			return goModule{}, errors.E(op, err, errors.KindUnauthorized)
+		}
+
 		var m goModule
 		if jsonErr := json.NewDecoder(stdout).Decode(&m); jsonErr != nil {
 			return goModule{}, errors.E(op, err)

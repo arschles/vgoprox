@@ -162,6 +162,10 @@ spec:
               name: {{ default "athens-proxy-basic-auth" .Values.basicAuth.secretName | quote }}
               key: {{ default "password" .Values.basicAuth.passwordSecretKey | quote }}
         {{- end }}
+        {{- if .Values.downloadModeFile.enabled }}
+        - name: ATHENS_DOWNLOAD_MODE
+          value: "file:/usr/local/config/download-mode.hcl"
+        {{- end }}
         ports:
         - containerPort: 3000
         {{- if or (eq .Values.storage.type "disk") .Values.upstreamProxy.enabled .Values.netrc.enabled .Values.sshGitServers .Values.gitconfig.enabled}}
@@ -195,6 +199,11 @@ spec:
         - name: gitconfig
           mountPath: "/etc/gitconfig"
           subPath: "gitconfig"
+        {{- end }}
+        {{- if .Values.downloadModeFile.enabled }}
+        - name: download-mode-config
+          mountPath: "/usr/local/config"
+          readOnly: true
         {{- end }}
       {{- with .Values.resources }}
         resources:
@@ -235,6 +244,11 @@ spec:
           items:
           - key: {{ .Values.gitconfig.secretKey }}
             path: "gitconfig"
+      {{- end }}
+      {{- if .Values.downloadModeFile.enabled }}
+      - name: download-mode-config
+        configMap:
+          name: {{ template "fullname" . }}-download-mode
       {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:

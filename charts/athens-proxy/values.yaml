@@ -119,6 +119,26 @@ upstreamProxy:
   enabled: false
   url: "https://gocenter.io"
 
+downloadModeFile:
+  enabled: false
+  content: |
+    downloadURL = "https://proxy.golang.org"
+
+    mode = "async_redirect"
+
+    download "github.com/gomods/*" {
+        mode = "sync"
+    }
+
+    download "golang.org/x/*" {
+        mode = "none"
+    }
+
+    download "github.com/pkg/*" {
+        mode = "redirect"
+        downloadURL = "https://gocenter.io"
+    }
+
 jaeger:
   ## Type of service; valid values are "ClusterIP", "LoadBalancer", and "NodePort".
   type: ClusterIP

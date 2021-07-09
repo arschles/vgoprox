@@ -77,6 +77,16 @@ func (el EnvList) HasKey(key string) bool {
 	return false
 }
 
+func (el EnvList) GetValue(key string) (string, bool){
+	prefix := key+"="
+	for _, env := range el {
+		if strings.HasPrefix(env, prefix) {
+			return env[len(prefix):], true
+		}
+	}
+	return "", false
+}
+
 // Add adds a key=value entry to the environment
 // list
 func (el *EnvList) Add(key, value string) {

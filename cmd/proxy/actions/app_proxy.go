@@ -43,6 +43,20 @@ func addProxyRoutes(
 	}
 	r.HandleFunc("/index", indexHandler(indexer))
 
+	var firstGoProxyUrl *url.URL
+	if goBinVarProxy, has := c.GoBinaryEnvVars.GetValue("GOPROXY"); has {
+		for _, proxy := range strings.Split(goBinVarProxy, ",") {
+			if proxy == "direct" {
+				continue
+			}
+			firstGoProxyUrl, err = url.Parse(proxy)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
+
 	for _, sumdb := range c.SumDBs {
 		sumdbURL, err := url.Parse(sumdb)
 		if err != nil {
@@ -55,11 +69,21 @@ func addProxyRoutes(
 		r.HandleFunc(supportPath, func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(200)
 		})
-		sumHandler := sumdbProxy(sumdbURL, c.NoSumPatterns)
-		pathPrefix := "/sumdb/" + sumdbURL.Host
-		r.PathPrefix(pathPrefix + "/").Handler(
-			http.StripPrefix(strings.TrimSuffix(c.PathPrefix, "/")+pathPrefix, sumHandler),
-		)
+
+		var sumHandler http.Handler
+		if sumdbURL.Host == "sum.golang.org" && firstGoProxyUrl != nil{
+			pathPrefix := "/sumdb/" + sumdbURL.Host
+			sumdbURL.Scheme = firstGoProxyUrl.Scheme
+			sumdbURL.Host = firstGoProxyUrl.Host
+			sumHandler = sumdbProxy(sumdbURL, c.NoSumPatterns)
+			r.PathPrefix(pathPrefix + "/").Handler(sumHandler)
+		} else {
+			sumHandler = sumdbProxy(sumdbURL, c.NoSumPatterns)
+			pathPrefix := "/sumdb/" + sumdbURL.Host
+			r.PathPrefix(pathPrefix + "/").Handler(
+				http.StripPrefix(strings.TrimSuffix(c.PathPrefix, "/")+pathPrefix, sumHandler),
+			)
+		}
 	}
 
 	// Download Protocol
